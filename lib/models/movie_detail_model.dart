@@ -5,6 +5,7 @@ class MovieDetailModel {
   final String plot;
   final String director;
   final String genre;
+  final String imdbID; // Tambahkan field ini untuk navigasi rekomendasi
 
   const MovieDetailModel({ 
     required this.title,
@@ -13,6 +14,7 @@ class MovieDetailModel {
     required this.plot,
     required this.director,
     required this.genre,
+    required this.imdbID,
   });
 
   factory MovieDetailModel.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class MovieDetailModel {
       plot: json['Plot'] ?? 'No plot available', 
       director: json['Director'] ?? 'N/A', 
       genre: json['Genre'] ?? 'N/A',
+      imdbID: json['imdbID'] ?? '', // Ambil imdbID dari respon JSON
     ); 
   }
 }
