@@ -6,6 +6,9 @@ import 'package:flutter_mvvm/views/movie_detail_view.dart';
 import 'package:get/get.dart';
 import 'package:flutter_mvvm/views/movie_view.dart';
 import 'package:flutter_mvvm/routes/app_routes.dart'; 
+// Tambah Import
+import 'package:flutter_mvvm/views/settings_view.dart'; 
+import 'package:flutter_mvvm/view_models/settings_controller.dart'; 
 
 class AppPages {
   
@@ -14,10 +17,8 @@ class AppPages {
       name: Routes.home,
       page: () => MovieView(),
       binding: BindingsBuilder(() {
-        // Services (Di-inject agar bisa diakses oleh rute lain)
+        // Services/Repositories lama...
         Get.lazyPut(() => OmdbServices());
-
-        // Repositories (Di-inject agar bisa diakses oleh rute lain)
         Get.lazyPut(
           () => MovieRepository(
             omdbService: Get.find<OmdbServices>(),
@@ -30,22 +31,32 @@ class AppPages {
             repository: Get.find<MovieRepository>(),
           ),
         );
+        
+        // --- FIX: Inisialisasi SettingsController di sini agar selalu siap di MovieView ---
+        Get.lazyPut<SettingsController>(
+          () => SettingsController(),
+        );
+        // --------------------------------------------------------------------------------
       }),
-    ), // Perbaikan: Tambahkan koma di sini
+    ), 
 
-    // Perbaikan: Ganti { menjadi GetPage( dan sintaks lainnya
     GetPage(
-      name: Routes.detail, // Asumsi Anda menggunakan konvensi huruf kapital untuk konstanta
+      name: Routes.detail, 
       page: () => MovieDetailView(),
       binding: BindingsBuilder(() {
-        // MovieDetailController hanya perlu MovieRepository yang sudah di-inject di atas
         Get.lazyPut(
           () => MovieDetailController(
-            // Perbaikan: Sintaks Get.find yang benar
             repository: Get.find<MovieRepository>(),
           ),
         );
       }),
+    ),
+    
+    // --- Rute Settings: Tidak perlu inisialisasi lagi, cukup panggil instance yang sudah ada ---
+    GetPage(
+      name: Routes.settings,
+      page: () => const SettingsView(), 
+      binding: BindingsBuilder(() {}), // Binding kosong
     ),
   ];
 }

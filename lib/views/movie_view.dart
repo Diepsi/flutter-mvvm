@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mvvm/routes/app_routes.dart';
 import 'package:get/get.dart';
 import 'package:flutter_mvvm/view_models/movie_controller.dart';
+// --- Wajib: Import Settings Controller ---
+import 'package:flutter_mvvm/view_models/settings_controller.dart'; 
+// ----------------------------------------
 
 class MovieView extends GetView<MovieController> {
   final TextEditingController searchController = TextEditingController();
@@ -10,8 +13,37 @@ class MovieView extends GetView<MovieController> {
 
   @override
   Widget build(BuildContext context) {
+    // FIX: Ambil instance SettingsController yang sudah diinisialisasi
+    // Asumsi: SettingsController sudah diinisialisasi di app_pages.dart (Routes.home binding)
+    final settingsController = Get.find<SettingsController>(); 
+
     return Scaffold(
-      appBar: AppBar(title: Text("Movie Database")),
+      appBar: AppBar(
+        title: Text("Movie Database"),
+        actions: [
+          // --- TOMBOL TOGGLE TEMA SEKALI KLIK ---
+          Obx(() => IconButton(
+            // Ganti ikon: Jika Dark, tampilkan LightMode (matahari). Jika Light, tampilkan DarkMode (bulan).
+            icon: Icon(
+              settingsController.isDark.value 
+                ? Icons.light_mode
+                : Icons.dark_mode,
+            ),
+            onPressed: () {
+              settingsController.toggleTheme(); // Panggil fungsi toggle
+            },
+          )),
+          // ------------------------------------
+
+          // Tombol Settings (Masih ada, untuk navigasi ke pengaturan lainnya jika perlu)
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Get.toNamed(Routes.settings);
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -50,10 +82,10 @@ class MovieView extends GetView<MovieController> {
 
                 return GridView.builder(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // Jumlah kolom (2 kolom ke samping)
-                    crossAxisSpacing: 12, // Jarak horizontal antar item
-                    mainAxisSpacing: 12, // Jarak vertikal antar item
-                    childAspectRatio: 0.65, // Rasio tinggi:lebar (makin kecil makin tinggi card-nya)
+                    crossAxisCount: 2, 
+                    crossAxisSpacing: 12, 
+                    mainAxisSpacing: 12, 
+                    childAspectRatio: 0.65, 
                   ),
                   itemCount: controller.movieList.length,
                   itemBuilder: (context, index) {
@@ -61,7 +93,6 @@ class MovieView extends GetView<MovieController> {
                     
                     return GestureDetector(
                       onTap: () {
-                        // Navigasi ke Detail
                         Get.toNamed(Routes.detail, arguments: movie.imdbID);
                       },
                       child: Card(
@@ -72,13 +103,12 @@ class MovieView extends GetView<MovieController> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            // 1. Bagian Gambar (Expanded agar mengisi sisa ruang atas)
                             Expanded(
                               child: ClipRRect(
                                 borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                                 child: Image.network(
                                   movie.poster,
-                                  fit: BoxFit.cover, // Gambar full memenuhi area
+                                  fit: BoxFit.cover, 
                                   errorBuilder: (ctx, error, stack) => Container(
                                     color: Colors.grey[300],
                                     child: Center(
@@ -93,7 +123,6 @@ class MovieView extends GetView<MovieController> {
                               ),
                             ),
                             
-                            // 2. Bagian Teks (Judul & Tahun)
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Column(
@@ -101,8 +130,8 @@ class MovieView extends GetView<MovieController> {
                                 children: [
                                   Text(
                                     movie.title,
-                                    maxLines: 2, // Maksimal 2 baris
-                                    overflow: TextOverflow.ellipsis, // ... jika kepanjangan
+                                    maxLines: 2, 
+                                    overflow: TextOverflow.ellipsis, 
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
